@@ -1,0 +1,203 @@
+// Product Data
+const products = [
+    {
+        id: 1,
+        title: "Keyboard RGB Wireless Pro",
+        category: "tech",
+        price: "Rp250.000",
+        image: "https://images.unsplash.com/photo-1587829191301-80651ee93968?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=keyboard%20rgb%20wireless"
+    },
+    {
+        id: 2,
+        title: "Wireless Mouse Gaming",
+        category: "tech",
+        price: "Rp150.000",
+        image: "https://images.unsplash.com/photo-1527814050087-3793815479db?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=wireless%20mouse%20gaming"
+    },
+    {
+        id: 3,
+        title: "Trendy Sneakers Casual",
+        category: "fashion",
+        price: "Rp350.000",
+        image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=sneakers%20casual"
+    },
+    {
+        id: 4,
+        title: "Kacamata Hitam Vintage",
+        category: "fashion",
+        price: "Rp120.000",
+        image: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=kacamata%20hitam"
+    },
+    {
+        id: 5,
+        title: "Lampu LED RGB Dekorasi",
+        category: "home",
+        price: "Rp80.000",
+        image: "https://images.unsplash.com/photo-1565636192335-14c46fa1120d?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=lampu%20led%20rgb"
+    },
+    {
+        id: 6,
+        title: "Bantal Empuk Premium",
+        category: "home",
+        price: "Rp200.000",
+        image: "https://images.unsplash.com/photo-1584622281867-8a748c1b4d2f?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=bantal%20empuk"
+    },
+    {
+        id: 7,
+        title: "Webcam HD 1080P",
+        category: "tech",
+        price: "Rp300.000",
+        image: "https://images.unsplash.com/photo-1611532736579-6b16e2b50449?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=webcam%201080p"
+    },
+    {
+        id: 8,
+        title: "Jaket Denim Trendy",
+        category: "fashion",
+        price: "Rp280.000",
+        image: "https://images.unsplash.com/photo-1551028719-00167b16ebc5?w=500&h=400&fit=crop",
+        link: "https://shopee.co.id/search?keyword=jaket%20denim"
+    }
+];
+
+let currentCategory = 'semua';
+let currentSearch = '';
+
+/**
+ * Initialize the application
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    displayProducts(products);
+});
+
+/**
+ * Display products in the grid
+ * @param {Array} productsToDisplay - Array of products to display
+ */
+function displayProducts(productsToDisplay) {
+    const productGrid = document.getElementById('product-grid');
+    const noResults = document.getElementById('noResults');
+
+    if (productsToDisplay.length === 0) {
+        productGrid.innerHTML = '';
+        noResults.classList.remove('hidden');
+        return;
+    }
+
+    noResults.classList.add('hidden');
+    productGrid.innerHTML = productsToDisplay.map(product => `
+        <div class="product-item ${product.category}" data-category="${product.category}" data-title="${product.title.toLowerCase()}">
+            <img 
+                src="${product.image}" 
+                alt="${product.title}" 
+                loading="lazy"
+                class="w-full h-40 md:h-48 object-cover">
+            <div>
+                <span class="product-badge">${getCategoryLabel(product.category)}</span>
+                <h3 class="product-title">${product.title}</h3>
+                <p class="product-price">${product.price}</p>
+                <a 
+                    href="${product.link}" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="product-link"
+                    aria-label="Buka ${product.title} di Shopee">
+                    Cek Detail
+                </a>
+            </div>
+        </div>
+    `).join('');
+}
+
+/**
+ * Get display label for category
+ * @param {string} category - Category code
+ * @returns {string} Category label
+ */
+function getCategoryLabel(category) {
+    const labels = {
+        tech: 'Tech',
+        fashion: 'Fashion',
+        home: 'Dekorasi',
+        semua: 'Semua'
+    };
+    return labels[category] || category;
+}
+
+/**
+ * Filter products by category
+ * @param {string} category - Category to filter by
+ */
+function filterProduk(category) {
+    currentCategory = category;
+    
+    // Update button states
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.setAttribute('aria-selected', 'false');
+    });
+    
+    const activeBtn = document.getElementById(`btn-${category}`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.setAttribute('aria-selected', 'true');
+    }
+
+    // Apply filter
+    applyFilters();
+}
+
+/**
+ * Search products
+ */
+function cariProduk() {
+    currentSearch = document.getElementById('searchInput').value.toLowerCase();
+    applyFilters();
+}
+
+/**
+ * Apply both category filter and search
+ */
+function applyFilters() {
+    let filtered = products;
+
+    // Filter by category
+    if (currentCategory !== 'semua') {
+        filtered = filtered.filter(p => p.category === currentCategory);
+    }
+
+    // Filter by search term
+    if (currentSearch) {
+        filtered = filtered.filter(p => 
+            p.title.toLowerCase().includes(currentSearch) ||
+            p.category.toLowerCase().includes(currentSearch)
+        );
+    }
+
+    displayProducts(filtered);
+}
+
+/**
+ * Reset all filters
+ */
+function resetFilter() {
+    currentCategory = 'semua';
+    currentSearch = '';
+    document.getElementById('searchInput').value = '';
+    filterProduk('semua');
+}
+
+/**
+ * Keyboard navigation for filters
+ */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        resetFilter();
+    }
+});
